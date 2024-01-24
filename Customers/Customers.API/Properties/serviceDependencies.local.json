@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "connectionInfo": "App registration: Customers Service, Tenant: Default Directory (shrimca2010gmail.onmicrosoft.com - Microsoft Entra ID)",
+      "type": "identityapp.default"
+    }
+  }
+}
