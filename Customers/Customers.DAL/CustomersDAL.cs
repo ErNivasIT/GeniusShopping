@@ -2,16 +2,20 @@
 using Customers.Models;
 using Customers.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MySqlConnector;
 
 namespace Customers.DAL
 {
     public class CustomersDAL : ICustomersDAL
     {
-        private readonly CustomersDbContext  customersDbContext;
+        private readonly CustomersDbContext customersDbContext;
+        private readonly IConfiguration configuration;
 
-        public CustomersDAL(CustomersDbContext customersDbContext)
+        public CustomersDAL(CustomersDbContext customersDbContext, IConfiguration configuration)
         {
             this.customersDbContext = customersDbContext;
+            this.configuration = configuration;
         }
         public async Task<IEnumerable<CustomerViewModel>> GetCustomers()
         {
@@ -48,6 +52,41 @@ namespace Customers.DAL
             customerViewModel.Id = product.Id;
 
             return customerViewModel;
+        }
+
+        public async Task<IEnumerable<CustomerViewModel>> Add(IEnumerable<CustomerViewModel> objList)
+        {
+            using (MySqlConnection conn = new MySqlConnection())
+            {
+                conn.ConnectionString = configuration.GetConnectionString("CustomersConnection");
+
+                foreach (var item in objList)
+                {
+                    using (MySqlCommand cmd = new MySqlCommand())
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                       
+                        cmd.CommandText = "customers.`Add-Customers`";
+
+                        cmd.Parameters.AddWithValue("Name", item.Name);
+                        cmd.Parameters.AddWithValue("Gender", item.Gender);
+                        cmd.Parameters.AddWithValue("Email", item.Email);
+                        cmd.Parameters.AddWithValue("MobileNo", item.MobileNo);
+                        cmd.Parameters.AddWithValue("Added_On", DateTime.Now);
+                        cmd.Parameters.AddWithValue("Added_By", item.Added_By);
+                        cmd.Parameters.AddWithValue("Added_By_IP", item.Added_By_IP);
+                        cmd.Parameters.AddWithValue("Is_Active", item.Is_Active);
+
+                        if (conn.State != System.Data.ConnectionState.Open)
+                            await conn.OpenAsync();
+                        await cmd.ExecuteNonQueryAsync();
+                        if (conn.State != System.Data.ConnectionState.Closed)
+                            await conn.CloseAsync();
+                    }
+                }
+                return objList;
+            }
         }
     }
 }

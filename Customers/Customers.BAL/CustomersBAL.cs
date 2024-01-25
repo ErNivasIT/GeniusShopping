@@ -19,10 +19,14 @@ namespace Products.BAL
             var res = await customersDAL.Add(obj);
             return res;
         }
-
         public async Task<IEnumerable<CustomerViewModel>> GetCustomers()
         {
             var res=await customersDAL.GetCustomers();
+            return res;
+        }
+        public async Task<IEnumerable<CustomerViewModel>> Add(IEnumerable<CustomerViewModel> objList)
+        {
+            var res = await customersDAL.Add(objList);
             return res;
         }
     }

@@ -16,15 +16,23 @@ namespace Customers.API.Controllers
             this.customersBAL = customersBAL;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CustomerViewModel>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<CustomerViewModel>>> GetCustomers()
         {
             var res = await customersBAL.GetCustomers();
+            Console.WriteLine("Called at "+DateTime.Now);
             return Ok(res);
         }
         [HttpPost]
-        public async Task<ActionResult<CustomerViewModel>> AddProduct(CustomerViewModel obj)
+        public async Task<ActionResult<CustomerViewModel>> AddCustomer(CustomerViewModel obj)
         {
             var res = await customersBAL.Add(obj);
+            return Ok(res);
+        }
+        [HttpPost]
+        [Route("AddBulk")]
+        public async Task<ActionResult<IEnumerable<CustomerViewModel>>> AddBulkCustomer(IEnumerable<CustomerViewModel> objList)
+        {
+            var res = await customersBAL.Add(objList);
             return Ok(res);
         }
     }
